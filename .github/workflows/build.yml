@@ -11,60 +11,58 @@ env:
   GODOT_VERSION: "4.3"
   GODOT_RELEASE: "stable"
   EXPORT_NAME: "FunkinGodot"
-  ANDROID_SDK_VERSION: "34"
-  NDK_VERSION: "23.2.8568313"
   JAVA_VERSION: "17"
+  NDK_VERSION: "23.2.8568313"
 
 jobs:
   build-windows:
-    name: Build — Windows Desktop
+    name: Build - Windows Desktop
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Install Godot ${{ env.GODOT_VERSION }}
+      - name: Install Godot
         run: |
-          wget -q https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}/Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64.zip
-          unzip -q Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64.zip
-          mv Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64 /usr/local/bin/godot
+          wget -q "https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}/Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64.zip" -O godot.zip
+          unzip -q godot.zip
+          mv "Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64" /usr/local/bin/godot
           chmod +x /usr/local/bin/godot
 
-      - name: Install Windows export templates
+      - name: Install export templates
         run: |
-          mkdir -p ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.${{ env.GODOT_RELEASE }}
-          wget -q https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}/Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_export_templates.tpz
-          unzip -q Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_export_templates.tpz -d /tmp/templates
-          mv /tmp/templates/templates/* ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.${{ env.GODOT_RELEASE }}/
+          TEMPLATES_DIR="$HOME/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.${{ env.GODOT_RELEASE }}"
+          mkdir -p "$TEMPLATES_DIR"
+          wget -q "https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}/Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_export_templates.tpz" -O templates.tpz
+          unzip -q templates.tpz -d /tmp/tpz
+          mv /tmp/tpz/templates/* "$TEMPLATES_DIR/"
 
-      - name: Create output directory
-        run: mkdir -p export/release/windows
-
-      - name: Export Windows build
+      - name: Export Windows
         run: |
-          godot --headless --export-release "Windows Desktop" export/release/windows/${{ env.EXPORT_NAME }}.exe
+          mkdir -p export/windows
+          godot --headless --export-release "Windows Desktop" "export/windows/${{ env.EXPORT_NAME }}.exe"
 
-      - name: Upload Windows artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.EXPORT_NAME }}-Windows
-          path: export/release/windows/
+          path: export/windows/
           retention-days: 14
 
   build-android:
-    name: Build — Android
+    name: Build - Android
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           lfs: true
 
-      - name: Set up Java ${{ env.JAVA_VERSION }}
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -73,78 +71,68 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Android NDK
+      - name: Install NDK
         run: |
-          sdkmanager --install "ndk;${{ env.NDK_VERSION }}"
+          sdkmanager --install "ndk;${{ env.NDK_VERSION }}" --sdk_root="$ANDROID_SDK_ROOT"
           echo "ANDROID_NDK_HOME=$ANDROID_SDK_ROOT/ndk/${{ env.NDK_VERSION }}" >> $GITHUB_ENV
 
-      - name: Install Godot ${{ env.GODOT_VERSION }}
+      - name: Install Godot
         run: |
-          wget -q https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}/Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64.zip
-          unzip -q Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64.zip
-          mv Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64 /usr/local/bin/godot
+          wget -q "https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}/Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64.zip" -O godot.zip
+          unzip -q godot.zip
+          mv "Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_linux.x86_64" /usr/local/bin/godot
           chmod +x /usr/local/bin/godot
 
-      - name: Install Android export templates
+      - name: Install export templates
         run: |
-          mkdir -p ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.${{ env.GODOT_RELEASE }}
-          wget -q https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}/Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_export_templates.tpz
-          unzip -q Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_export_templates.tpz -d /tmp/templates
-          mv /tmp/templates/templates/* ~/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.${{ env.GODOT_RELEASE }}/
+          TEMPLATES_DIR="$HOME/.local/share/godot/export_templates/${{ env.GODOT_VERSION }}.${{ env.GODOT_RELEASE }}"
+          mkdir -p "$TEMPLATES_DIR"
+          wget -q "https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}/Godot_v${{ env.GODOT_VERSION }}-${{ env.GODOT_RELEASE }}_export_templates.tpz" -O templates.tpz
+          unzip -q templates.tpz -d /tmp/tpz
+          mv /tmp/tpz/templates/* "$TEMPLATES_DIR/"
 
-      - name: Configure Godot Android SDK paths
+      - name: Configure Godot Android settings
         run: |
-          mkdir -p ~/.config/godot
-          cat > ~/.config/godot/editor_settings-4.tres << EOF
-          [gd_resource type="EditorSettings" format=3]
-          [resource]
-          export/android/android_sdk_path = "$ANDROID_SDK_ROOT"
-          export/android/java_sdk_path = "$JAVA_HOME"
-          export/android/debug_keystore = ""
-          export/android/debug_keystore_user = "androiddebugkey"
-          export/android/debug_keystore_pass = "android"
-          EOF
+          mkdir -p "$HOME/.config/godot"
+          printf '[gd_resource type="EditorSettings" format=3]\n[resource]\nexport/android/android_sdk_path = "%s"\n' "$ANDROID_SDK_ROOT" \
+            > "$HOME/.config/godot/editor_settings-4.tres"
 
-      - name: Set up debug keystore
+      - name: Generate debug keystore
         run: |
+          mkdir -p "$HOME/.android"
           keytool -genkeypair \
-            -v \
-            -keystore ~/.android/debug.keystore \
+            -keystore "$HOME/.android/debug.keystore" \
             -storepass android \
             -alias androiddebugkey \
             -keypass android \
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
-            -dname "CN=Android Debug,O=Android,C=US"
-
-      - name: Set up release keystore
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
-        run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
-
-      - name: Create output directory
-        run: mkdir -p export/release/android
+            -dname "CN=Android Debug,O=Android,C=US" \
+            -noprompt
 
       - name: Export Android APK
         run: |
-          godot --headless --export-debug "Android" export/release/android/${{ env.EXPORT_NAME }}.apk
+          mkdir -p export/android
+          godot --headless --export-debug "Android" "export/android/${{ env.EXPORT_NAME }}.apk"
 
-      - name: Sign APK with release keystore
+      - name: Sign with release keystore
         if: ${{ secrets.KEYSTORE_BASE64 != '' }}
         run: |
-          $ANDROID_SDK_ROOT/build-tools/${{ env.ANDROID_SDK_VERSION }}.0.0/apksigner sign \
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+          BUILD_TOOLS=$(ls "$ANDROID_SDK_ROOT/build-tools" | sort -V | tail -1)
+          "$ANDROID_SDK_ROOT/build-tools/$BUILD_TOOLS/apksigner" sign \
             --ks release.keystore \
-            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
-            --ks-key-alias ${{ secrets.KEY_ALIAS }} \
-            --key-pass pass:${{ secrets.KEY_PASSWORD }} \
-            export/release/android/${{ env.EXPORT_NAME }}.apk
+            --ks-pass "pass:${{ secrets.KEYSTORE_PASSWORD }}" \
+            --ks-key-alias "${{ secrets.KEY_ALIAS }}" \
+            --key-pass "pass:${{ secrets.KEY_PASSWORD }}" \
+            "export/android/${{ env.EXPORT_NAME }}.apk"
 
-      - name: Upload Android artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.EXPORT_NAME }}-Android
-          path: export/release/android/
+          path: export/android/
           retention-days: 14
 
   release:
@@ -167,13 +155,13 @@ jobs:
           path: dist/android
 
       - name: Zip Windows build
-        run: zip -r dist/${{ env.EXPORT_NAME }}-Windows.zip dist/windows/
+        run: zip -r "dist/${{ env.EXPORT_NAME }}-Windows.zip" dist/windows/
 
-      - name: Create GitHub Release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: build-${{ github.run_number }}
-          name: "Build #${{ github.run_number }}"
+          name: Build ${{ github.run_number }}
           draft: false
           prerelease: true
           files: |
