@@ -1,6 +1,6 @@
 extends Node
 
-const TITLE_STATE = preload("res://source/TitleState.tscn")
+const TITLE_STATE = preload("res://source/godot/TitleState.tscn")
 
 @onready var fps_label: Label = $FPSLabel
 
