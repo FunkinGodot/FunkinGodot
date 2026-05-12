@@ -1,0 +1,53 @@
+[configuration]
+
+config_version=5
+
+[application]
+
+config/name="Funkin Godot"
+config/version="0.2.7.1"
+config/tags=PackedStringArray("2d", "music", "rhythm")
+run/main_scene="res://src/Main.tscn"
+config/features=PackedStringArray("4.3")
+boot_splash/bg_color=Color(0, 0, 0, 1)
+boot_splash/show_image=false
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/size/resizable=true
+window/size/mode=0
+window/vsync/vsync_mode=0
+window/handheld/orientation=1
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+renderer/rendering_method="mobile"
+environment/default_clear_color=Color(0, 0, 0, 1)
+textures/canvas_textures/default_texture_filter=0
+
+[audio]
+
+driver/enable_input=true
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=false
+
+[layer_names]
+
+2d_physics/layer_1="world"
+2d_physics/layer_2="player"
+2d_physics/layer_3="enemy"
+2d_physics/layer_4="ui"
+
+[autoload]
+
+Main="*res://src/Main.gd"
+
+[dotnet]
+
+project/assembly_name="FunkinGodot"
