@@ -21,14 +21,14 @@ jobs:
           mv Godot_v4.3-stable_linux.x86_64 /usr/local/bin/godot
           chmod +x /usr/local/bin/godot
 
-      - name: Install templates
+      - name: Install export templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates/4.3.stable
           wget -q "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz" -O templates.tpz
           unzip -q templates.tpz -d /tmp/tpz
           mv /tmp/tpz/templates/* ~/.local/share/godot/export_templates/4.3.stable/
 
-      - name: Export
+      - name: Export Windows
         run: |
           mkdir -p export/windows
           godot --headless --export-release "Windows Desktop" export/windows/FunkinGodot.exe
@@ -64,12 +64,18 @@ jobs:
           mv Godot_v4.3-stable_linux.x86_64 /usr/local/bin/godot
           chmod +x /usr/local/bin/godot
 
-      - name: Install templates
+      - name: Install export templates
         run: |
           mkdir -p ~/.local/share/godot/export_templates/4.3.stable
           wget -q "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz" -O templates.tpz
           unzip -q templates.tpz -d /tmp/tpz
           mv /tmp/tpz/templates/* ~/.local/share/godot/export_templates/4.3.stable/
+
+      - name: Install Android build template
+        run: |
+          mkdir -p android/build
+          unzip -q ~/.local/share/godot/export_templates/4.3.stable/android_source.zip -d android/build/
+          echo "4.3.stable" > android/.build_version
 
       - name: Configure Godot SDK path
         run: |
@@ -81,7 +87,16 @@ jobs:
       - name: Generate debug keystore
         run: |
           mkdir -p ~/.android
-          keytool -genkeypair -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Android Debug,O=Android,C=US" -noprompt
+          keytool -genkeypair \
+            -keystore ~/.android/debug.keystore \
+            -storepass android \
+            -alias androiddebugkey \
+            -keypass android \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -dname "CN=Android Debug,O=Android,C=US" \
+            -noprompt
 
       - name: Export APK
         run: |
