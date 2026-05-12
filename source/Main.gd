@@ -1,6 +1,6 @@
 extends Node
 
-const TITLE_STATE = preload("res://src/states/TitleState.tscn")
+const TITLE_STATE = preload("res://source/TitleState.tscn")
 
 @onready var fps_label: Label = $FPSLabel
 
