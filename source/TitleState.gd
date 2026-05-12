@@ -1,6 +1,6 @@
 extends Node2D
 
-const MAIN_MENU_STATE = preload("res://source/godotMainMenuState.tscn")
+const MAIN_MENU_STATE = preload("res://source/godot/MainMenuState.tscn")
 
 const BPM: float = 102.0
 const INTRO_LINES: Array[String] = [
